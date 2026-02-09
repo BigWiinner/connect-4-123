@@ -2,7 +2,7 @@
 
 Connect4::Connect4() : Game()
 {
-    _grid = new Grid(6,7);
+    _grid = new Grid(7,6);
 }
 
 Connect4::~Connect4()
@@ -13,8 +13,8 @@ Connect4::~Connect4()
 void Connect4::setUpBoard()
 {
     setNumberOfPlayers(2);
-    _gameOptions.rowX = 6;
-    _gameOptions.rowY = 7;
+    _gameOptions.rowX = 7;
+    _gameOptions.rowY = 6;
     _grid->initializeSquares(80, "square.png");
 
 //    if (gameHasAI()) {
