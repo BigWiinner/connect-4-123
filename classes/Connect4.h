@@ -28,5 +28,10 @@ public:
     Grid* getGrid() override { return _grid; }
 
 private:
+    // Player constants
+    static const int YELLOW_PLAYER = 0;
+    static const int RED_PLAYER = 1;
+    Bit*        createPiece(Player* player);
+
     Grid* _grid;
 };

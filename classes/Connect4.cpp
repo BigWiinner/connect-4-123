@@ -1,4 +1,5 @@
 #include "Connect4.h"
+#include <iostream>
 
 Connect4::Connect4() : Game()
 {
@@ -8,6 +9,13 @@ Connect4::Connect4() : Game()
 Connect4::~Connect4()
 {
     delete _grid;
+}
+
+Bit* Connect4::createPiece(Player* player) {
+    Bit* bit = new Bit();
+    bit->LoadTextureFromFile(player == getPlayerAt(YELLOW_PLAYER) ? "yellow.png" : "red.png");
+    bit->setOwner(player);
+    return bit;
 }
 
 void Connect4::setUpBoard()
@@ -22,6 +30,21 @@ void Connect4::setUpBoard()
 //    }
 
     startGame();
+}
+
+bool Connect4::actionForEmptyHolder(BitHolder &holder) {
+    if (holder.bit()) { return false; }
+
+    Player* currentPlayer = getCurrentPlayer();
+    Bit* bit = createPiece(currentPlayer);
+    if (bit) {
+        ImVec2 pos = holder.getPosition(); // TODO make piece fall to bottom of board
+        bit->setPosition(pos);
+        holder.setBit(bit);
+        endTurn();
+        return true;
+    }
+    return false;
 }
 
 Player* Connect4::checkForWinner() {
@@ -42,10 +65,6 @@ std::string Connect4::stateString() {
 
 void Connect4::setStateString(const std::string &s) {
     return;
-}
-
-bool Connect4::actionForEmptyHolder(BitHolder &holder) {
-    return false;
 }
 
 bool Connect4::canBitMoveFrom(Bit &bit, BitHolder &src) {
