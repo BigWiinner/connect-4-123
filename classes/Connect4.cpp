@@ -35,16 +35,52 @@ void Connect4::setUpBoard()
 bool Connect4::actionForEmptyHolder(BitHolder &holder) {
     if (holder.bit()) { return false; }
 
+    ChessSquare* square = static_cast<ChessSquare*>(&holder);
+    if (!square) 
+    {
+        return false; 
+    }
+    int col = square->getColumn();
+    if (col == -1) 
+    {
+        return false;
+    }
+    if (isColumnFull(col)) 
+    {
+        return false;
+    }
+
+    int targetRow = getTargetRow(col);
+    if (targetRow == -1)
+    {
+        return false;
+    }
+
     Player* currentPlayer = getCurrentPlayer();
     Bit* bit = createPiece(currentPlayer);
     if (bit) {
-        ImVec2 pos = holder.getPosition(); // TODO make piece fall to bottom of board
-        bit->setPosition(pos);
-        holder.setBit(bit);
+        ChessSquare* targetSquare = _grid->getSquare(col, targetRow);
+        bit->setPosition(targetSquare->getPosition());
+        targetSquare->setBit(bit);
         endTurn();
         return true;
     }
     return false;
+}
+
+bool Connect4::isColumnFull(int col) {
+    ChessSquare* topSquare = _grid->getSquare(col, 0);
+    return topSquare && topSquare->bit() != nullptr;
+}
+
+int Connect4::getTargetRow(int col) {
+    for(int row = 5; row >= 0; row--) {
+        ChessSquare* square = _grid->getSquare(col, row);
+        if (square && !square->bit()) {
+            return row;
+        }
+    }
+    return -1;
 }
 
 Player* Connect4::checkForWinner() {

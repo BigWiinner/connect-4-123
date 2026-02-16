@@ -32,6 +32,8 @@ private:
     static const int YELLOW_PLAYER = 0;
     static const int RED_PLAYER = 1;
     Bit*        createPiece(Player* player);
+    bool        isColumnFull(int col);
+    int         getTargetRow(int col);
 
     Grid* _grid;
 };
