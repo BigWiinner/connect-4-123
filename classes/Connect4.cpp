@@ -1,5 +1,4 @@
 #include "Connect4.h"
-#include <iostream>
 
 Connect4::Connect4() : Game()
 {
@@ -96,10 +95,30 @@ std::string Connect4::initialStateString() {
 }
 
 std::string Connect4::stateString() {
-    return "000000000000000000000000000000000000000000";
+    std::string state = "000000000000000000000000000000000000000000";
+    _grid->forEachSquare([&](ChessSquare* square, int x, int y) {
+        Bit* bit = square->bit();
+        if (bit) {
+            state[y * 7 + x] = bit->getOwner()->playerNumber() + 1 + '0';
+        }
+    });
+    return state;
 }
 
 void Connect4::setStateString(const std::string &s) {
+    if (s.length() != 42) return;
+
+    _grid->setStateString(s);
+
+    _grid->forEachSquare([&](ChessSquare* square, int x, int y) {
+        int index = y * 7 + x;
+        int playerNumber = s[index] - '0';
+        if (playerNumber) {
+            square->setBit(createPiece(getCurrentPlayer()));
+        } else {
+            square->setBit(nullptr);
+        }
+    });
     return;
 }
 
