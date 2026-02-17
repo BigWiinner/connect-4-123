@@ -89,6 +89,10 @@ inline uint64_t bb_bit(int col, int row) {
     return uint64_t(1) << (col * 7 + row);
 }
 
+// Converts board into bitboard
+// Bitboard will represent the bottom row as the top bits
+// Also makes the bitboard have an extra row at the end to serve
+//  as sentinal bits for checkWinShift to prevent false positives
 inline uint64_t board_to_bitboard(const char board[], char player) {
     uint64_t bb = 0;
     for (int row = 0; row < 6; row++) {
@@ -101,6 +105,28 @@ inline uint64_t board_to_bitboard(const char board[], char player) {
     return bb;
 }
 
+/*
+    Writing this down so that I can hopefully understand how this works
+
+    checWinShift will check four separate win conditions:
+        Vertical, Horizontal, Diagonal Left (\), and Diagonal Right (/)
+    
+    It will first shift everything once in that direction and doing an & comparison, leaving 3 bits if there were four in a row
+        then it will shift two in that direction and do a & comparison so that only 1 bit remains in that row of four.
+
+    If any bits remain after a bit shift by one step into bit shift by two steps in a direction, then that means there
+        is a four in a row.
+
+    If there are no four in a row sequences, the & comparisons will result in 0.
+
+    Also the uint64_bb is "upside down", as in if there was a single yellow piece in the center of the bottom row, the board would read:
+        0001000
+        0000000
+        0000000
+        0000000
+        0000000
+        0000000
+*/
 bool checkWinShift(uint64_t bb) {
     uint64_t t;
 
@@ -205,7 +231,7 @@ int AIGetTargetRow(const std::string& state, int col) {
 
 int Connect4::negamax(std::string& state, int depth, int alpha, int beta, int player) {
     int curVal = AICheckForWinner(state, player);
-    if (curVal){ 
+    if (curVal) { 
         return curVal - depth;
     }
     if (depth == 0) {
@@ -280,7 +306,6 @@ void Connect4::updateAI() {
         int row = getTargetRow(bestMove);
         ChessSquare* square = _grid->getSquare(bestMove, row);
         if (square) {
-            std::cout << "Making move..." << std::endl;
             actionForEmptyHolder(*square);
         }
     }
