@@ -26,7 +26,7 @@ public:
     void        updateAI() override;
     bool        gameHasAI() override { return true; } // Set to true when AI is implemented
     Grid* getGrid() override { return _grid; }
-    int         negamax(std::string& s, int depth, int alpha, int beta, int player, int AIPlayer);
+    int         negamax(std::string& s, int depth, int alpha, int beta, int player);
 
 private:
     // Player constants

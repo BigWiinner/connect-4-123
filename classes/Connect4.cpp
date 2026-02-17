@@ -203,15 +203,16 @@ int AIGetTargetRow(const std::string& state, int col) {
     return -1;
 }
 
-int Connect4::negamax(std::string& state, int depth, int alpha, int beta, int player, int AIPlayer) {
-    int curVal = AICheckForWinner(state, AIPlayer);
+int Connect4::negamax(std::string& state, int depth, int alpha, int beta, int player) {
+    int curVal = AICheckForWinner(state, player);
     if (curVal){ 
-        return curVal + depth;
+        return curVal - depth;
     }
     if (depth == 0) {
         return 0;
     }
-    if (state.find('0') == std::string::npos) return 0 ;
+    if (state.find('0') == std::string::npos) return 0; // Check for draw
+
 
     int bestScore = -1000;
     int order[7] = {3, 4, 2, 5, 1, 6, 0};
@@ -223,7 +224,14 @@ int Connect4::negamax(std::string& state, int depth, int alpha, int beta, int pl
         int index = (5 - row) * 7 + col;
 
         state[index] = player == 0 ? '1' : '2';
-        int score = -negamax(state, depth - 1, -beta, -alpha, 1 - player, AIPlayer);
+
+        // Check if current player can win next move
+        if (AICheckForWinner(state, player)) {
+            state[index] ='0';
+            return 1000000;
+        }
+
+        int score = -negamax(state, depth - 1, -beta, -alpha, 1 - player);
         state[index] = '0';
 
         if (score > bestScore) {
@@ -258,7 +266,7 @@ void Connect4::updateAI() {
         int index = (5 - targetRow) * 7 + col;
         state[index] = AI_NUMBER == 0 ? '1' : '2';
 
-        int score = -negamax(state, 8, -10000, 10000, 1 - aiPlayer, aiPlayer);
+        int score = -negamax(state, 8, -10000, 10000, 1 - aiPlayer);
 
         state[index] = '0';
 
@@ -272,6 +280,7 @@ void Connect4::updateAI() {
         int row = getTargetRow(bestMove);
         ChessSquare* square = _grid->getSquare(bestMove, row);
         if (square) {
+            std::cout << "Making move..." << std::endl;
             actionForEmptyHolder(*square);
         }
     }
