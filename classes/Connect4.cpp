@@ -1,8 +1,9 @@
 #include "Connect4.h"
 
-Connect4::Connect4() : Game()
+Connect4::Connect4(int AI) : Game()
 {
     _grid = new Grid(7,6);
+    AI_NUMBER = AI;
 }
 
 Connect4::~Connect4()
@@ -25,9 +26,9 @@ void Connect4::setUpBoard()
     _grid->initializeSquares(80, "square.png");
     move = 0;
 
-//    if (gameHasAI()) {
-//        setAIPlayer(YELLOW_PLAYER);
-//    }
+    if (gameHasAI() && AI_NUMBER != -1) {
+        setAIPlayer(AI_NUMBER == 0 ? YELLOW_PLAYER : RED_PLAYER);
+    }
 
     startGame();
 }
@@ -183,6 +184,97 @@ void Connect4::bitMovedFromTo(Bit &bit, BitHolder &src, BitHolder &dst) {
     return;
 }
 
+int AICheckForWinner(const std::string& state, int player) {
+    const char* board = state.c_str();
+    uint64_t playerBB = board_to_bitboard(board, (player + 1) + '0');
+    uint64_t enemyBB = board_to_bitboard(board, (2 - player) + '0');
+    if (checkWinShift(playerBB)) { return 1000; }
+    if (checkWinShift(enemyBB)) { return -1000; }
+    return 0;
+}
+
+int AIGetTargetRow(const std::string& state, int col) {
+    for(int row = 5; row >= 0; row--) {
+        int index = (5 - row) * 7 + col;
+        if (state[index] == '0') {
+            return row;
+        }
+    }
+    return -1;
+}
+
+int Connect4::negamax(std::string& state, int depth, int alpha, int beta, int player, int AIPlayer) {
+    int curVal = AICheckForWinner(state, AIPlayer);
+    if (curVal){ 
+        return curVal + depth;
+    }
+    if (depth == 0) {
+        return 0;
+    }
+    if (state.find('0') == std::string::npos) return 0 ;
+
+    int bestScore = -1000;
+    int order[7] = {3, 4, 2, 5, 1, 6, 0};
+    for (int i = 0; i < 7; i++) {
+        int col = order[i];
+        int row = AIGetTargetRow(state, col);
+        if (row == -1) { continue; }
+
+        int index = (5 - row) * 7 + col;
+
+        state[index] = player == 0 ? '1' : '2';
+        int score = -negamax(state, depth - 1, -beta, -alpha, 1 - player, AIPlayer);
+        state[index] = '0';
+
+        if (score > bestScore) {
+            bestScore = score;
+        }
+        if (score > alpha) {
+            alpha = score;
+        }
+        if (alpha >= beta) {
+            break;
+        }
+    }
+
+    return bestScore;
+}
+
 void Connect4::updateAI() {
+    if (!gameHasAI()) return;
+
+    int humanPlayer = AI_NUMBER == 0 ? RED_PLAYER : YELLOW_PLAYER;
+    int aiPlayer = AI_NUMBER == 0 ? YELLOW_PLAYER : RED_PLAYER;
+    int bestScore = -1000;
+    int bestMove = -1;
+    std::string state = stateString();
+
+    int order[7] = {3, 4, 2, 5, 1, 6, 0};
+    for (int i = 0; i < 7; i++) {
+        int col = order[i];
+        int targetRow = getTargetRow(col);
+        if (targetRow == -1) continue;
+
+        int index = (5 - targetRow) * 7 + col;
+        state[index] = AI_NUMBER == 0 ? '1' : '2';
+
+        int score = -negamax(state, 8, -10000, 10000, 1 - aiPlayer, aiPlayer);
+
+        state[index] = '0';
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestMove = col;
+        }
+    }
+    
+    if (bestMove != -1) {
+        int row = getTargetRow(bestMove);
+        ChessSquare* square = _grid->getSquare(bestMove, row);
+        if (square) {
+            actionForEmptyHolder(*square);
+        }
+    }
+
     return;
 }

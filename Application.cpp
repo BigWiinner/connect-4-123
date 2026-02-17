@@ -58,7 +58,15 @@ namespace ClassGame {
                         game->setUpBoard();
                     }
                     if (ImGui::Button("Start Connect 4 HUMAN VS HUMAN")) {
-                        game = new Connect4();
+                        game = new Connect4(-1);
+                        game->setUpBoard();
+                    }
+                    if (ImGui::Button("Start Connect 4 AI FIRST")) {
+                        game = new Connect4(0);
+                        game->setUpBoard();
+                    }
+                    if (ImGui::Button("Start Connect 4 AI SECOND")) {
+                        game = new Connect4(1);
                         game->setUpBoard();
                     }
                 } else {

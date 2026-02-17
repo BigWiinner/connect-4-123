@@ -6,7 +6,7 @@ class Connect4 : public Game
 
 public:
 
-    Connect4();
+    Connect4(int AI_NUMBER);
     ~Connect4();
 
     // Required virtual methods from Game base class
@@ -24,13 +24,15 @@ public:
 
     // AI methods
     void        updateAI() override;
-    bool        gameHasAI() override { return false; } // Set to true when AI is implemented
+    bool        gameHasAI() override { return true; } // Set to true when AI is implemented
     Grid* getGrid() override { return _grid; }
+    int         negamax(std::string& s, int depth, int alpha, int beta, int player, int AIPlayer);
 
 private:
     // Player constants
     static const int YELLOW_PLAYER = 0;
     static const int RED_PLAYER = 1;
+    int AI_NUMBER;
     int move;
     Bit*        createPiece(Player* player);
     bool        isColumnFull(int col);
