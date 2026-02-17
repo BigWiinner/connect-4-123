@@ -31,6 +31,7 @@ private:
     // Player constants
     static const int YELLOW_PLAYER = 0;
     static const int RED_PLAYER = 1;
+    int move;
     Bit*        createPiece(Player* player);
     bool        isColumnFull(int col);
     int         getTargetRow(int col);
