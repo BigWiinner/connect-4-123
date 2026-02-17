@@ -9,3 +9,10 @@ For extra credit, when a game piece is added to the board, make it animate into 
 Graphic files are provided for the game pieces called yellow.png and red.png.
 
 For the submission, create a new github based on the above code-base and provide a link to that along with a complete readme.md on how your implementation works.
+
+## Implementation ##
+Connect 4 has three gameplay options: Human vs. Human, AI vs. Human where the AI plays first as the yellow pieces, and Human vs. AI where AI plays second as the red pieces.
+Select one of the options to play. Click on an empty space in a column to place a piece in that column.
+Implementation uses negamax with alpha-beta pruning to figure out what moves to make in order for the AI to win. If the negamax doesn't return a certain path to victory, the bot will
+  instead prioritize placing pieces in the center columns first before branching out to the outer spots on the board.
+In order to check for winner, the program uses bit shifting to check for vertical, horizontal, diagonal \, and diagonal / wins.
