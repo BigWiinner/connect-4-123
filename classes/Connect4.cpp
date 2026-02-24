@@ -252,7 +252,8 @@ int Connect4::negamax(std::string& state, int depth, int alpha, int beta, int pl
         state[index] = player == 0 ? '1' : '2';
 
         // Check if current player can win next move
-        if (AICheckForWinner(state, player)) {
+        int winCheck = AICheckForWinner(state, player);
+        if (winCheck > 0) {
             state[index] ='0';
             return 1000000;
         }
@@ -307,6 +308,18 @@ void Connect4::updateAI() {
         ChessSquare* square = _grid->getSquare(bestMove, row);
         if (square) {
             actionForEmptyHolder(*square);
+        }
+    }
+    else {
+        for (int option : order) {
+            int potentialRow = getTargetRow(option);
+            if (potentialRow != -1) {
+                ChessSquare* square = _grid->getSquare(option, potentialRow);
+                if (square) {
+                    actionForEmptyHolder(*square);
+                    break;
+                }
+            }
         }
     }
 
